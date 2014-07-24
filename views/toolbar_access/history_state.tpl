@@ -18,14 +18,11 @@
  * @since         DebugKit 1.0
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  **/
-$panels = array();
-foreach ($toolbarState as $panelName => $panel) {
-	$panels[$panelName] = $this->element($panel['elementName'], array(
-		'content' => $panel['content'], 
-		'plugin' => $panel['plugin']
-	));
-}
-echo $javascript->object($panels);
-Configure::write('debug', 0);
 ?>
-}*
+*}
+{$panels = []}
+{foreach $toolbarState as $panelName => $panel}
+	{$panels[$panelName] = $view->element($panel.elementName, ['content' => $panel.content, 'plugin' => $panel.plugin])}
+{/foreach}
+{$javascript->object($panels)}
+{$conf->write('debug', 0)}
