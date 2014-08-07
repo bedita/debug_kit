@@ -22,7 +22,6 @@
 *}
 <h2>Logs</h2>
 <div class="code-table">
-{dump var=$content}
 {foreach $content as $logName => $logs}
 	<h3>{$logName}</h3>
 	{if count($logs) > 0}
