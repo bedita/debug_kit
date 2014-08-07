@@ -1,7 +1,6 @@
 {*
-<?php
 /**
- * Timer Panel Element
+ * Smarty Timer Panel Element
  *
  * PHP versions 4 and 5
  *
@@ -18,93 +17,96 @@
  * @since         DebugKit 0.1
  * @license       MIT License (http://www.opensource.org/licenses/mit-license.php)
  **/
-if (!isset($debugKitInHistoryMode)):
-	$timers = DebugKitDebugger::getTimers(true);
-	$currentMemory = DebugKitDebugger::getMemoryUse();
-	$peakMemory = DebugKitDebugger::getPeakMemoryUse();
-	$requestTime = DebugKitDebugger::requestTime();
-else:
-	$content = $toolbar->readCache('timer', $this->params['pass'][0]);
-	if (is_array($content)):
-		extract($content);
-	endif;
-endif;
-?>
+*}
+
+{if !isset($debugKitInHistoryMode)}
+	{$timers = DebugKitDebugger::getTimers(true)}
+	{$currentMemory = DebugKitDebugger::getMemoryUse()}
+	{$peakMemory = DebugKitDebugger::getPeakMemoryUse()}
+	{$requestTime = DebugKitDebugger::requestTime()}
+{else}
+	{$content = $toolbar->readCache('timer', $view->params['pass'][0])}
+	{if is_array($content)}
+		{foreach $content as $k => $v}
+			{assign var=$k value=$v}
+		{/foreach}
+	{/if}
+{/if}
+
 <div class="debug-info">
-	<h2><?php __d('debug_kit', 'Memory'); ?></h2>
+	<h2>Memory</h2>
 	<div class="peak-mem-use">
-	<?php
-		echo $toolbar->message(__d('debug_kit', 'Peak Memory Use', true), $number->toReadableSize($peakMemory)); ?>
+		{$toolbar->message('Peak Memory Use', $number->toReadableSize($peakMemory))}
 	</div>
 
-	<?php
-	$headers = array(__d('debug_kit', 'Message', true), __d('debug_kit', 'Memory use', true));
-	$memoryPoints = DebugKitDebugger::getMemoryPoints();
+	{$headers = ['Message', 'Memory use']}
+	{$memoryPoints = DebugKitDebugger::getMemoryPoints()}
 
-	$rows = array();
-	foreach($memoryPoints as $key => $value):
-		$rows[] = array($key, $number->toReadableSize($value));
-	endforeach;
+	{$rows = []}
+	{foreach $memoryPoints as $key => $value}
+		{$rows[] = [$key, $number->toReadableSize($value)]}
+	{/foreach}
 
-	echo $toolbar->table($rows, $headers);
-	?>
+	{$toolbar->table($rows, $headers)}
 </div>
 
 <div class="debug-info debug-timers">
-	<h2><?php __d('debug_kit', 'Timers'); ?></h2>
+	<h2>Timers</h2>
 	<div class="request-time">
-		<?php $totalTime = sprintf(__d('debug_kit', '%s (ms)', true), $number->precision($requestTime * 1000, 0)); ?>
-		<?php echo $toolbar->message(__d('debug_kit', 'Total Request Time:', true), $totalTime)?>
+		{$totalTime = $number->precision($requestTime * 1000, 0)|cat:' (ms)'}
+		{$toolbar->message('Total Request Time:', $totalTime)}
 	</div>
-<?php
-$rows = array();
-$end = end($timers);
-$maxTime = $end['end'];
 
-$headers = array(
-	__d('debug_kit', 'Message', true),
-	__d('debug_kit', 'Time in ms', true),
-	__d('debug_kit', 'Graph', true)
-);
+{$rows = []}
+{$end = end($timers)}
+{$maxTime = $end.end}
 
-$i = 0;
-$values = array_values($timers);
+{$headers = ['Message', 'Time in ms', 'Graph']}
 
-foreach ($timers as $timerName => $timeInfo):
-	$indent = 0;
-	for ($j = 0; $j < $i; $j++) {
-		if (($values[$j]['end'] > $timeInfo['start']) && ($values[$j]['end']) > ($timeInfo['end'])) {
-			$indent++;
-		}
-	}
-	$indent = str_repeat(' » ', $indent);
-	$rows[] = array(
-		$indent . $timeInfo['message'],
-		$number->precision($timeInfo['time'] * 1000, 2),
+{$i = 0}
+{$values = array_values($timers)}
+
+{foreach $timers as $timerName => $timeInfo}
+	{$indent = 0}
+	{for $j = 0 to ($i - 1)}
+		{if (($values[$j]['end'] > $timeInfo['start']) && ($values[$j]['end']) > ($timeInfo['end']))}
+			{$indent = $indent + 1}
+		{/if}
+	{/for}
+	{$indent = str_repeat(' » ', $indent)}
+	{$rows[] = [
+		$indent|cat:$timeInfo.message,
+		$number->precision($timeInfo.time * 1000, 2),
 		$simpleGraph->bar(
-			$number->precision($timeInfo['time'] * 1000, 2),
-			$number->precision($timeInfo['start'] * 1000, 2),
-			array(
+			$number->precision($timeInfo.time * 1000, 2),
+			$number->precision($timeInfo.start * 1000, 2),
+			[
 				'max' => $maxTime * 1000,
-				'requestTime' => $requestTime * 1000,
-			)
+				'requestTime' => $requestTime * 1000
+			]
 		)
-	);
-	$i++;
-endforeach;
+	]}
+	{$i = $i + 1}
+{/foreach}
 
-if (strtolower($toolbar->getName()) == 'firephptoolbar'):
-	for ($i = 0, $len = count($rows); $i < $len; $i++):
-		unset($rows[$i][2]);
-	endfor;
-	unset($headers[2]);
-endif;
-
-echo $toolbar->table($rows, $headers, array('title' => 'Timers'));
-
-if (!isset($debugKitInHistoryMode)):
-	$toolbar->writeCache('timer', compact('timers', 'currentMemory', 'peakMemory', 'requestTime'));
-endif;
-?>
-</div>
+{* can't unset var in smarty??
+{if (strtolower($toolbar->getName()) == 'firephptoolbar')}
+	{for $i = 0 to $i < count($rows)}
+		{$rows[$i][2]|@unset}
+	{/for}
+	{$headers[2]|@unset}
+{/if}
 *}
+
+{$toolbar->table($rows, $headers, ['title' => 'Timers'])}
+
+{if (!isset($debugKitInHistoryMode))}
+	{* use 'if' because $toolbar->writeCache return true on success and smarty print 1 *}
+	{if $toolbar->writeCache('timer', [
+		'timers' => $timers,
+		'currentMemory' => $currentMemory,
+		'peakMemory' => $peakMemory,
+		'requestTime' => $requestTime
+	])}{/if}
+{/if}
+</div>

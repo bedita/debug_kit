@@ -56,13 +56,13 @@ class ToolbarAccessController extends DebugKitAppController {
  *
  * @return void
  **/
-	function beforeFilter() {
-		parent::beforeFilter();
+	function beditaBeforeFilter() {
 		if (isset($this->Toolbar)) {
 			$this->Toolbar->enabled = false;
 		}
 		$this->helpers['DebugKit.Toolbar']['cacheKey'] = $this->Toolbar->cacheKey;
 		$this->helpers['DebugKit.Toolbar']['cacheConfig'] = 'debug_kit';
+		$this->view = 'View';
 	}
 
 /**

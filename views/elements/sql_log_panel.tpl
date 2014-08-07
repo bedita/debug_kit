@@ -23,7 +23,7 @@
 
 {$headers = ['Query', 'Error', 'Affected', 'Num. rows', 'Took (ms)', 'Actions']}
 {if isset($debugKitInHistoryMode)}
-	{* $content = $toolbar->readCache('sql_log', $this->params.pass.0) *}
+	{$content = $toolbar->readCache('sql_log', $view->params.pass.0)}
 {/if}
 
 <h2>Sql Logs</h2>
