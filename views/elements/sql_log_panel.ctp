@@ -26,7 +26,7 @@ if (isset($debugKitInHistoryMode)) {
 <?php if (!empty($content)) : ?>
 	<?php foreach ($content['connections'] as $dbName => $explain): ?>
 	<div class="sql-log-panel-query-log">
-		<h4><?php echo $dbName ?></h4>
+		<h4><?php echo $dbName ?> (<?php echo $toolbar->getQueryCnt($dbName) ?> queries)</h4>
 		<?php
 			if (!isset($debugKitInHistoryMode)):
 				$queryLog = $toolbar->getQueryLogs($dbName, array(

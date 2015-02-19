@@ -30,7 +30,7 @@
 {if !empty($content)}
 	{foreach $content.connections as $dbName => $explain}
 	<div class="sql-log-panel-query-log">
-		<h4>{$dbName}</h4>
+		<h4>{$dbName} ({$toolbar->getQueryCnt($dbName)} queries)</h4>
 		{if !isset($debugKitInHistoryMode)}
 			{$queryLog = $toolbar->getQueryLogs($dbName, ['explain' => $explain, 'threshold' => $content.threshold])}
 		{else}

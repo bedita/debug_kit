@@ -179,4 +179,17 @@ class ToolbarHelper extends AppHelper {
 		}
 		return $out;
 	}
+
+
+/**
+ * Gets the number of queries for the given connection names.
+ *
+ * @param string $connection Connection name to get number of queries for.
+ * @return int Number of queries executed.
+ */
+	function getQueryCnt($connection) {
+		App::import('Model', 'ConnectionManager');
+		$db =& ConnectionManager::getDataSource($connection);
+		return $db->_queriesCnt;
+	}
 }
